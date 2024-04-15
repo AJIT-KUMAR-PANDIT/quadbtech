@@ -6,17 +6,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
 
-const ToDoList = ({ taskId, onDelete }) => {
-    
-  const [task, setTask] = React.useState("");
-  const [isChecked, setIsChecked] = React.useState(false);
-
-  React.useEffect(() => {
-    // Load task data from local storage on component mount
-    const savedData = JSON.parse(localStorage.getItem(`task-${taskId}`)) || { task: "", isChecked: false };
-    setTask(savedData.task);
-    setIsChecked(savedData.isChecked);
-  }, [taskId]);
+const ToDoList = ({ taskId, onDelete, initialTask, initialChecked }) => {
+  const [task, setTask] = React.useState(initialTask || "");
+  const [isChecked, setIsChecked] = React.useState(initialChecked || false);
 
   const handleTextFieldChange = (event) => {
     const newTask = event.target.value;
@@ -32,16 +24,19 @@ const ToDoList = ({ taskId, onDelete }) => {
 
   const handleDeleteTask = () => {
     onDelete(taskId);
+
+    // Remove the task from localStorage
+    localStorage.removeItem(`task-${taskId}`);
+
+    // Clear task and isChecked states
     setTask("");
     setIsChecked(false);
-    saveDataToLocalStorage("", false);
   };
 
   const saveDataToLocalStorage = (task, isChecked) => {
     const data = { task, isChecked };
     localStorage.setItem(`task-${taskId}`, JSON.stringify(data));
   };
-
 
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexGrow: 1 }}>

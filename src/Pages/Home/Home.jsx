@@ -1,19 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import TopNavBar from "../../Components/TopNavBar/TopNavBar";
 import BottomButton from "../../Components/BottomButton/BottomButton";
 import ToDoList from "../../Components/ToDoList/ToDoList";
 
 const Home = () => {
-  const [buttonNo, setbuttonNo] = useState(0);
+  const [buttonNo, setButtonNo] = useState(0);
+  const [localStorageData, setLocalStorageData] = useState({});
+
+  useEffect(() => {
+    const data = getDataFromLocalStorage();
+    setLocalStorageData(data);
+    setButtonNo(Object.keys(data).length);
+  }, []);
 
   const handleBottomButtonClick = () => {
-    setbuttonNo(buttonNo + 1);
+    const newTaskId = buttonNo;
+    setButtonNo(buttonNo + 1);
+
+    const newTask = { task: "", isChecked: false };
+
+    localStorage.setItem(`task-${newTaskId}`, JSON.stringify(newTask));
+
+    setLocalStorageData({
+      ...localStorageData,
+      [newTaskId]: newTask,
+    });
   };
 
   const handleDelete = (taskId) => {
-      console.log("delete task", taskId);
-  }
-  
+    localStorage.removeItem(`task-${taskId}`);
+
+    const updatedData = { ...localStorageData };
+    delete updatedData[taskId];
+    setLocalStorageData(updatedData);
+  };
+
   const getDataFromLocalStorage = () => {
     const data = {};
     for (let key in localStorage) {
@@ -30,24 +51,26 @@ const Home = () => {
     }
     return data;
   };
-  
-  
-  const localStorageData = getDataFromLocalStorage();
 
-  console.log(localStorageData);
   return (
     <>
       <div>
-        <div style={{position: "fixed", width: "100vw", top:"0px"}}> 
+        <div style={{ position: "fixed", width: "100vw", top: "0px" }}>
           <TopNavBar />
         </div>
-        <div style={{ display: "flex", justifyContent: "center" , flexDirection: "column" , marginTop: "71px" }}>
-          {Array.from({ length: buttonNo || localStorageData }, (_, index) => (
-            <ToDoList taskId={index} onDelete={handleDelete} />
+        <div style={{ display: "flex", justifyContent: "center", flexDirection: "column", marginTop: "71px" }}>
+          {Object.keys(localStorageData).map((taskId) => (
+            <ToDoList
+              key={taskId}
+              taskId={taskId}
+              onDelete={handleDelete}
+              initialTask={localStorageData[taskId]?.task}
+              initialChecked={localStorageData[taskId]?.isChecked}
+            />
           ))}
         </div>
         <div onClick={handleBottomButtonClick}>
-          <BottomButton  />
+          <BottomButton />
         </div>
       </div>
     </>
