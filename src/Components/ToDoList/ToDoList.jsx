@@ -7,6 +7,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
 
 const ToDoList = ({ taskId, onDelete }) => {
+    
   const [task, setTask] = React.useState("");
   const [isChecked, setIsChecked] = React.useState(false);
 
@@ -31,13 +32,16 @@ const ToDoList = ({ taskId, onDelete }) => {
 
   const handleDeleteTask = () => {
     onDelete(taskId);
-    localStorage.removeItem(`task-${taskId}`);
+    setTask("");
+    setIsChecked(false);
+    saveDataToLocalStorage("", false);
   };
 
   const saveDataToLocalStorage = (task, isChecked) => {
     const data = { task, isChecked };
     localStorage.setItem(`task-${taskId}`, JSON.stringify(data));
   };
+
 
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexGrow: 1 }}>

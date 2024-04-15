@@ -4,42 +4,50 @@ import BottomButton from "../../Components/BottomButton/BottomButton";
 import ToDoList from "../../Components/ToDoList/ToDoList";
 
 const Home = () => {
-  const [counter, setCounter] = useState(0);
-  const [tasks, setTasks] = useState([]);
+  const [buttonNo, setbuttonNo] = useState(0);
 
   const handleBottomButtonClick = () => {
-    setCounter(counter + 1);
+    setbuttonNo(buttonNo + 1);
   };
 
   const handleDelete = (taskId) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+      console.log("delete task", taskId);
+  }
+  
+  const getDataFromLocalStorage = () => {
+    const data = {};
+    for (let key in localStorage) {
+      if (localStorage.hasOwnProperty(key)) {
+        if (key.startsWith("task-")) {
+          const value = localStorage.getItem(key);
+          if (value) {
+            const parsedValue = JSON.parse(value);
+            const taskId = key.split("-")[1];
+            data[taskId] = { task: parsedValue.task, isChecked: parsedValue.isChecked };
+          }
+        }
+      }
+    }
+    return data;
   };
+  
+  
+  const localStorageData = getDataFromLocalStorage();
 
-  const addTask = () => {
-    const newTask = { id: counter + 1 };
-    setTasks((prevTasks) => [...prevTasks, newTask]);
-  };
-
+  console.log(localStorageData);
   return (
     <>
       <div>
-        <div style={{ position: "fixed", width: "100vw", top: "0px" }}>
+        <div style={{position: "fixed", width: "100vw", top:"0px"}}> 
           <TopNavBar />
         </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            flexDirection: "column",
-            marginTop: "71px",
-          }}
-        >
-          {tasks.map((task) => (
-            <ToDoList key={task.id} taskId={task.id} onDelete={handleDelete} />
+        <div style={{ display: "flex", justifyContent: "center" , flexDirection: "column" , marginTop: "71px" }}>
+          {Array.from({ length: buttonNo || localStorageData }, (_, index) => (
+            <ToDoList taskId={index} onDelete={handleDelete} />
           ))}
         </div>
-        <div onClick={addTask}>
-          <BottomButton />
+        <div onClick={handleBottomButtonClick}>
+          <BottomButton  />
         </div>
       </div>
     </>
